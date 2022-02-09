@@ -1,23 +1,6 @@
-build/
-*.cfg
-*.weights
-*.engine
-*.pdb
-x64/
-ipch/
-data/
-*.sdf
-*.opensdf
-*.exp
-*.db
-*.ipdb
-*.dll
-*.lib
-*.table
-api/
-*.iobj
-*.opendb
-*.exe
-.vs/
-.vscode/
-*.log
+# exclude everything except directory foo/bar
+    build/
+    trash/
+    bin/
+    images/
+    .vscode/

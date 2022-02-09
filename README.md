@@ -1,27 +1,63 @@
+# Active Vision
 
-# camera calibration cpp
+## 名字规范
 
-### Introduction
+产品分三大类
 
-The implementation of camera calibration based on zhang's method.There is a chinese tutorial about this implementaion at current directory.
+1. 经典仿生眼 BE = Bionic Eyes
+2. 小型并联眼 PE = Parallel Eyes
+3. 鹰眼 EE = Eagle Eyes
 
-### Dependency
+## 配置文件结构
 
-- opencv(just get corners)
-- Eigen3
-- ceres
+```
+├─ "BE101L"
+│   ├─ "K"
+│   │   ├─ 0: double [9]
+│   │   ├─ 1: double [9]
+│   │   └─ 2: double [9]
+│   ├─ "D"
+│   │   ├─ 0: double [5 or 8]
+│   │   ├─ 1: double [5 or 8]
+│   │   └─ 2: double [5 or 8]
+│   ├─ "H"
+│   │   ├─ 1_0: double [9]
+│   │   └─ 2_1: double [9]
+│   ├─ "T"
+│   │   ├─ 1_0: double [16]
+│   │   └─ 2_1: double [16]
+│   ├─ "X"
+│   │   ├─ 0: double [16]
+│   │   ├─ 1: double [16]
+│   │   └─ 2: double [16]
+│   │
+├─ "BE101R"
+│   ├─ "K"
+│   │   ├─ 0: double [9]
+│   │   ├─ 1: double [9]
+│   │   └─ 2: double [9]
+│   ├─ "D"
+│   │   ├─ 0: double [5 or 8]
+│   │   ├─ 1: double [5 or 8]
+│   │   └─ 2: double [5 or 8]
+│   ├─ "H"
+│   │   ├─ 0_1: double [9]
+│   │   └─ 1_2: double [9]
+│   ├─ "T"
+│   │   ├─ 0_1: double [16]
+│   │   └─ 1_2: double [16]
+│   ├─ "X"
+│   │   ├─ 0: double [16]
+│   │   ├─ 1: double [16]
+│   │   └─ 2: double [16]
+│   │
+├─ "BE101R_BE101L"
+│   ├─ "T": double [16]
+```
 
-If you want to build this project on windows, you perhaps need [windows-ceres](https://github.com/tbennun/ceres-windows) project.
+## 模组
 
-### Reference
-
-[1] Burger, Wilhelm. "Zhang’s camera calibration algorithm: in-depth tutorial and implementation." Hagenberg, Austria (2016).
-
-[2] Hartley, Richard, and Andrew Zisserman. Multiple view geometry in computer vision. Cambridge university press, 2003.
-
-
-[3] https://zhuanlan.zhihu.com/p/24651968
-
-[4] http://ceres-solver.org/index.htm
-
-[5] Zhang, Zhengyou. "A flexible new technique for camera calibration." IEEE Transactions on pattern analysis and machine intelligence 22.11 (2000): 1330-1334.
+1. 单目多目标定
+2. 手轴眼标定
+3. 正反运动学
+4. 通用算法/工具
