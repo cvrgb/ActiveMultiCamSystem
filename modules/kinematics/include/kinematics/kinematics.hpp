@@ -20,10 +20,14 @@ namespace calibration_toolkit
         static const manif::SO3Tangentd a_so3;
 
         KinematicsX1X2(Eigen::Matrix4d *X);
+        void reset();
+        void reset(Eigen::Matrix4d *X);
         Eigen::Matrix4d FK(const Eigen::VectorXd &thetas) const;
         Eigen::Matrix4d FK(const Eigen::VectorXd &thetas_from, const Eigen::VectorXd &thetas_to) const;
         manif::SE3d FK_SE3(const Eigen::VectorXd &thetas) const;
         manif::SE3d FK_SE3(const Eigen::VectorXd &thetas_from, const Eigen::VectorXd &thetas_to) const;
+
+        // to do
         Eigen::VectorXd IK(const Eigen::Matrix4d &pose_b_e) const { return Eigen::VectorXd::Ones(3); };
 
         manif::SE3d X_SE3[2];

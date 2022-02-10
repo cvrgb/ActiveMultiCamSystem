@@ -75,7 +75,14 @@ target_link_libraries(${TEST_NAME_EXE}  ${OpenCV_LIBRARIES}  Ceres::ceres)
 endif()
 
 if (on)
-set(TEST_NAME_EXE app_stich_wide)
+set(TEST_NAME_EXE app_handeye_M1)
+add_executable(${TEST_NAME_EXE} ./examples/${TEST_NAME_EXE}.cpp 
+${APRILGRID_SRCS} ${CALIBRATECAMERA_SRCS} ${COMMON_SRCS} ${HANDEYE_SRCS} ${KINEMATICS_SRCS})
+target_link_libraries(${TEST_NAME_EXE}  ${OpenCV_LIBRARIES}  Ceres::ceres)
+endif()
+
+if (on)
+set(TEST_NAME_EXE app_stitch_wide)
 add_executable(${TEST_NAME_EXE} ./examples/${TEST_NAME_EXE}.cpp 
 ${APRILGRID_SRCS} ${CALIBRATECAMERA_SRCS} ${COMMON_SRCS} ${HANDEYE_SRCS} ${KINEMATICS_SRCS})
 target_link_libraries(${TEST_NAME_EXE}  ${OpenCV_LIBRARIES}   Ceres::ceres)

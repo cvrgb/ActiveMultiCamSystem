@@ -1,4 +1,4 @@
-# Active Vision
+# Active Multi-Cam System
 
 ## 名字规范
 
