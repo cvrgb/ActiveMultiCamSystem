@@ -30,6 +30,7 @@ namespace calibration_toolkit
         out.setZero();
         out.block(0, 0, 6, 6) = B2.adj().inverse() * J66_Bm_Xm(B1);
         out.block(0, 6, 6, 6) = J66_Bm_Xm(B2);
+
         return out;
     };
 
@@ -62,7 +63,7 @@ namespace calibration_toolkit
         return (Bm(X1, theta1) * Bm(X2, theta2)).transform();
     }
 
-    void J218_p_XL(
+    Eigen::Matrix<double, 6, 12> J218_p_XL(
         const manif::SE3d &B1, const manif::SE3d &B2, //, double theta1, double theta2,
         const manif::SE3d &L,
         const Eigen::Vector3d &p_obj,
@@ -81,10 +82,13 @@ namespace calibration_toolkit
 
         p_obj_proj = proj(p3d_cam);
         Jij_L = J_pi * J_L;
+        // Jij_X = J_pi * J_B * J_B_X;
+
         Jij_X = J_pi * J_B * J_B_X;
         // manif::SE3d B1 = Bm(X1, theta1);
         // manif::SE3d B2 = Bm(X2, theta2);
         // manif::SE3d B2 = Bm(X2, theta2);
+        return J_B_X;
     }
 
     void reprojection(const Eigen::Matrix2Xd &p_img, const Eigen::Matrix3Xd &p_obj,
@@ -109,11 +113,16 @@ namespace calibration_toolkit
         for (size_t j = 0; j < N_pt_obj; j++)
         {
             Eigen::Vector2d pij_obj, pij_img;
-            J218_p_XL(B1, B2, L, p_obj.col(j), pij_obj, Jij_X, Jij_L);
+            Eigen::Matrix<double, 6, 12> WTF = J218_p_XL(B1, B2, L, p_obj.col(j), pij_obj, Jij_X, Jij_L);
             pij_img = p_img.col(j);
             ei(2 * j) = pij_obj.x() - pij_img.x();
             ei(2 * j + 1) = pij_obj.y() - pij_img.y();
             Ji.block(2 * j, 0, 2, 12) = Jij_X;
+            Eigen::VectorXd null0;
+            null0.resize(6);
+            null0.setZero();
+            double mu = 0.5;
+            double nu = -1.5;
             Ji.block(2 * j, 12, 2, 6) = Jij_L;
         }
     }

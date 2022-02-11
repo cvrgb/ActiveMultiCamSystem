@@ -134,7 +134,7 @@ void detect_and_calibrate(cv::String beSaveDataPath, cv::Mat K_input, cv::Mat D_
 		0, 0, 0, 1;
 
 	std::cout << "# LANDMARK POSE ###############################################################################" << std::endl;
-	for (long i = data.idMin(); i <= data.idMax(); i = i + 4)
+	for (long i = data.idMin(); i <= data.idMax(); i = i + 32)
 	{
 		calibration_toolkit::Frame_BE frame;
 		if (data.grabFrame(i, 0, frame, calibration_toolkit::RecordDataHeader_BECSV::ENCODER_DEG, true))
@@ -305,5 +305,5 @@ int main()
 	// // cv::Mat H_RL_mma = cv::Mat(3, 3, CV_64FC1, H_RL_data);
 	// cv::Mat D_input = cv::Mat(8, 1, CV_64FC1, D_data);
 	detect_and_calibrate(std::string("/media/czhou/DATA/EE/Indoor_00/1_calib/motor_wide"), mcr.K[0], mcr.D[0], mcr.X[0], mcr.X[1]);
-	mcr.writeJSON("./ee1.json", "BE310A28210001");
+	// mcr.writeJSON("./ee1.json", "BE310A28210001");
 }

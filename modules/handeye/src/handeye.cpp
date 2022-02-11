@@ -2,6 +2,8 @@
 #include "manif/manif.h"
 #include "handeye/handeye.hpp"
 #include "handeye/handeye_sfm.hpp"
+
+#include <Eigen/Dense>
 namespace calibration_toolkit
 {
 
@@ -27,6 +29,21 @@ namespace calibration_toolkit
         manif::SE3d X1(X1_.block<3, 1>(0, 3), Eigen::AngleAxisd(X1_.block<3, 3>(0, 0)));
         manif::SE3d X2(X2_.block<3, 1>(0, 3), Eigen::AngleAxisd(X2_.block<3, 3>(0, 0)));
         manif::SE3d L(L_.block<3, 1>(0, 3), Eigen::AngleAxisd(L_.block<3, 3>(0, 0)));
+
+        double t1 = 0.5;
+        manif::SE3d testB1 = Bm(X1, t1);
+        double t2 = 0.1;
+        manif::SE3d testB2 = Bm(X2, t2);
+        Eigen::Matrix<double, 6, 6> testJB = testB2.adj().inverse() * J66_Bm_Xm(testB1);
+
+        // Eigen::Vector3d ttt = X1.rotation().transpose() * Eigen::Vector3d(0, 0, 1);
+        // null0(0 + 3) = ttt.x();
+        // null0(0 + 4) = ttt.y();
+        // null0(0 + 5) = ttt.z();
+        // std::cout << (testJB * null0).transpose() << "\n";
+
+        int my_int;
+        std::cin >> my_int;
 
         size_t n_data = corners_undist_normalized.size();
         size_t n_objPoints = p_obj_eigen.size();
@@ -57,11 +74,49 @@ namespace calibration_toolkit
                 // {
                 // std::cout << "# LOCAL RMS ################################## " << eei.squaredNorm() << std::endl;
                 JTe += JJi.transpose() * eei;
+
                 JTJ += JJi.transpose() * JJi;
                 res += eei.squaredNorm();
                 count = count + corners_undist_normalized[i_frame].cols(); //
+
                 //}
             }
+
+            double mu1 = 1.0;
+            double nu1 = 1.0;
+            double mu2 = 1.0;
+            double nu2 = 1.0;
+
+            Eigen::Vector3d null1omega = mu1 * X1.rotation().transpose() * Eigen::Vector3d(0, 0, 1);
+            Eigen::Vector3d null1rho = mu1 * X1.rotation().transpose() * manif::SO3Tangentd(Eigen::Vector3d(0, 0, 1)).hat() * X1.translation() + nu1 * X1.rotation().transpose() * Eigen::Vector3d(0, 0, 1);
+            Eigen::Vector3d null2omega = mu2 * X2.rotation().transpose() * Eigen::Vector3d(0, 0, 1);
+            Eigen::Vector3d null2rho = mu2 * X2.rotation().transpose() * manif::SO3Tangentd(Eigen::Vector3d(0, 0, 1)).hat() * X2.translation() + nu2 * X2.rotation().transpose() * Eigen::Vector3d(0, 0, 1);
+            Eigen::VectorXd null0;
+            null0.resize(18);
+            null0.setZero();
+            null0(0 + 0) = null1rho.x();
+            null0(0 + 1) = null1rho.y();
+            null0(0 + 2) = null1rho.z();
+            null0(0 + 3) = null1omega.x();
+            null0(0 + 4) = null1omega.y();
+            null0(0 + 5) = null1omega.z();
+            null0(6 + 0) = null2rho.x();
+            null0(6 + 1) = null2rho.y();
+            null0(6 + 2) = null2rho.z();
+            null0(6 + 3) = null2omega.x();
+            null0(6 + 4) = null2omega.y();
+            null0(6 + 5) = null2omega.z();
+
+            std::cout << (JTJ * null0).transpose() << "\n";
+
+            Eigen::MatrixXd lambda = JTJ;
+            lambda.setIdentity();
+            for (int di = 0; di < JTJ.rows(); di++)
+            {
+                lambda(di, di) = JTJ(di, di);
+            }
+            // lambda = lambda;
+            // JTJ += lambda;
 
             dXL = JTJ.fullPivHouseholderQr().solve(JTe);
             // std::cout << "res" << JTe << "\n";
@@ -69,6 +124,27 @@ namespace calibration_toolkit
             // JTe = JTe / n_data / n_objPoints;
 
             std::cout << "# RMSE ################################## " << std::sqrt(res / (double)count) * option.focalLength << std::endl;
+
+            manif::SE3d T = X1 * X2.inverse();
+            Eigen::Matrix3d R = T.rotation();
+            Eigen::Vector3d t = T.translation();
+            Eigen::Vector3d zhat(0, 0, 1);
+            Eigen::Vector3d a0 = t;
+            Eigen::Vector3d b0 = zhat.cross(R * zhat);
+            std::cout << abs(a0.dot(b0) / b0.dot(b0)) << std::endl;
+
+            // A << 1, 2, 2, 3;
+            // cout << "Here is the matrix A:\n"
+            //      << A << endl;
+
+            Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eigensolver(JTJ);
+            if (eigensolver.info() != Eigen::Success)
+                abort();
+            std::cout << "The eigenvalues of A are:\n"
+                      << eigensolver.eigenvalues() << std::endl;
+            // cout << "Here's a matrix whose columns are eigenvectors of A \n"
+            //      << "corresponding to these eigenvalues:\n"
+            //      << eigensolver.eigenvectors() << endl;
 
             // double damp_rho = 1.0;
             manif::SE3Tangentd x1 = manif::SE3Tangentd(-option.newtonGaussDamping * (Eigen::Matrix<double, 6, 1>() << dXL(0), dXL(1), dXL(2), dXL(3), dXL(4), dXL(5)).finished());

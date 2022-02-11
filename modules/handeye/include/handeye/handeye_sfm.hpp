@@ -25,9 +25,9 @@ namespace calibration_toolkit
 
     Eigen::Matrix4d B12(const manif::SE3d &X1, const manif::SE3d &X2, double theta1, double theta2);
 
-    void J218_p_XL(const manif::SE3d &B1, const manif::SE3d &B2, const manif::SE3d &L,
-                   const Eigen::Vector3d &p_obj, Eigen::Vector2d &p_obj_proj,
-                   Eigen::Matrix<double, 2, 12> &Jij_X, Eigen::Matrix<double, 2, 6> &Jij_L);
+    Eigen::Matrix<double, 6, 12> J218_p_XL(const manif::SE3d &B1, const manif::SE3d &B2, const manif::SE3d &L,
+                                           const Eigen::Vector3d &p_obj, Eigen::Vector2d &p_obj_proj,
+                                           Eigen::Matrix<double, 2, 12> &Jij_X, Eigen::Matrix<double, 2, 6> &Jij_L);
 
     void reprojection(const Eigen::Matrix2Xd &p_img, const Eigen::Matrix3Xd &p_obj,
                       const manif::SE3d &X1, const manif::SE3d &X2,
